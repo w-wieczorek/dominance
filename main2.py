@@ -26,7 +26,8 @@ class PartialSolution(object):
                     self.bound += max(dane.macierz[i][j], dane.macierz[j][i])
 
 p = 0
-psi = list(range(dane.N))
+psi = [-1] * dane.N
+psi[0] = 0
 best = ga.mainAG()
 fL = dane.evaluate(best)[0]
 current_step = 1
@@ -54,7 +55,7 @@ def step(n):
             current_step = 5
     elif n == 5:
         if p > 0 and psi[p] > dane.N - 1:
-            current_step = 9
+            current_step = 10
         else:
             current_step = 6
     elif n == 6:
@@ -78,14 +79,19 @@ def step(n):
             print("Nowa najlepsza wartość:", fL)
         current_step = 2
     elif n == 8:
+        if dane.macierz[psi[p-1]][psi[p]] >= dane.macierz[psi[p]][psi[p-1]]:
+            current_step = 9
+        else:
+            current_step = 2
+    elif n == 9:
         psol = PartialSolution()
-        psol.perm = psi
+        psol.perm = psi[:p+1]
         psol.compute_bound()
         if psol.bound > fL:
             current_step = 1
         else:
             current_step = 2
-    elif n == 9:
+    elif n == 10:
         psi[p] = -1
         p -= 1
         current_step = 2

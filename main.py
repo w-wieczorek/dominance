@@ -58,3 +58,78 @@ while Z:
                 Z.append((-child.bound, child))
 print("Najlepsza permutacja:", best)
 print("Najlepsza wartość:", best_value)
+
+p = 0
+psi = [-1] * dane.N
+psi[0] = 0
+best = ga.mainAG()
+fL = dane.evaluate(best)[0]
+current_step = 1
+brakujacy = list(range(dane.N))
+
+def step(n):
+    global p, psi, best, fL, current_step, brakujacy
+    if n == 1:
+        p += 1
+        current_step = 2
+    elif n == 2:
+        psi[p] = psi[p] + 1
+        current_step = 3
+    elif n == 3:
+        if any(psi[p] == psi[k] for k in range(p)):
+            current_step = 2
+        else:
+            current_step = 4
+    elif n == 4:
+        if p == 0 and psi[p] > dane.N - 1:
+            print("Najlepsza permutacja:", best)
+            print("Najlepsza wartość:", fL)
+            sys.exit(0)
+        else:
+            current_step = 5
+    elif n == 5:
+        if p > 0 and psi[p] > dane.N - 1:
+            current_step = 10
+        else:
+            current_step = 6
+    elif n == 6:
+        if p == dane.N - 2:
+            for i in range(dane.N):
+                brakujacy[i] = 0
+            for i in range(dane.N - 1):
+                brakujacy[psi[i]] = 1
+            for i in range(dane.N):
+                if brakujacy[i] == 0:
+                    psi[dane.N - 1] = i
+                    break
+            current_step = 7
+        else:
+            current_step = 8
+    elif n == 7:
+        f = dane.evaluate(psi)[0]
+        if f > fL:
+            best = psi.copy()
+            fL = f
+            print("Nowa najlepsza wartość:", fL)
+        current_step = 2
+    elif n == 8:
+        if dane.macierz[psi[p-1]][psi[p]] >= dane.macierz[psi[p]][psi[p-1]]:
+            current_step = 9
+        else:
+            current_step = 2
+    elif n == 9:
+        psol = PartialSolution()
+        psol.perm = psi[:p+1]
+        psol.compute_bound()
+        if psol.bound > fL:
+            current_step = 1
+        else:
+            current_step = 2
+    elif n == 10:
+        psi[p] = -1
+        p -= 1
+        current_step = 2
+
+while True:
+    step(current_step)
+
