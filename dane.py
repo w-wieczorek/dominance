@@ -14,7 +14,7 @@ def evaluate(permutacja):
             suma += macierz[permutacja[i]][permutacja[j]]
     return (suma,)
 
-N = 10  # długość permutacji
+N = 12  # długość permutacji
 macierz = losuj_macierz(N)
 for i in range(N - 1):
     for j in range(i + 1, N):
